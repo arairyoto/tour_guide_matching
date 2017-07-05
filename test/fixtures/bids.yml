@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  address: MyString
+  latitude: 1.5
+  longitude: 1.5
+  from: 2017-06-27 18:26:21
+  to: 2017-06-27 18:26:21
+  user_id: 1
+
+two:
+  address: MyString
+  latitude: 1.5
+  longitude: 1.5
+  from: 2017-06-27 18:26:21
+  to: 2017-06-27 18:26:21
+  user_id: 1

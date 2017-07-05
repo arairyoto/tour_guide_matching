@@ -1,0 +1,131 @@
+<style>
+  .push {
+    cursor : pointer;
+  }
+</style>
+
+<script>
+  $(function() {
+      $('.match').click(function() {
+          var id = this.id.split("_")[1];
+          
+          $.ajax({
+            type: "GET",
+            url: "/bids/"+id+"/matching",
+            data: {}
+          }).done(function(data) {
+            var data_size = data.length;
+            $('#results').empty();
+            $.each(data,function(){
+              $('#results').append('<tr></tr>');
+              $('#results >tr').append('<td>'+this["user"]["email"]+'</td>');
+              $('#results >tr').append('<td>'+this["address"]+'</td>');
+              $('#results >tr').append('<td>'+this["time_from"]+'</td>');
+              $('#results >tr').append('<td>'+this["time_to"]+'</td>');
+              $('#results >tr').append('<td><div class="push" id="'+id+'_'+this["id"]+'"><span class="fa fa-send"></span></div></td>');
+            });
+          });
+      });
+      $(document).on('click','.push', function(){
+         var bid_id = this.id.split("_")[0];
+         var ask_id = this.id.split("_")[1];
+         $.ajax({
+            type: "POST",
+            url: "/match/push",
+            data: {bid_id: bid_id, ask_id: ask_id}
+          }).done(function(msg) {
+            console.log(msg);
+            });
+          });
+  });
+</script>
+
+
+
+<%- model_class = Bid -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:address) %></th>
+      <th><%= model_class.human_attribute_name(:time_from) %></th>
+      <th><%= model_class.human_attribute_name(:time_to) %></th>
+      <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th>result</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @bids_matched.each do |bid| %>
+      <tr>
+        <td><%= link_to bid.id, bid_path(bid) %></td>
+        <td><%= bid.address %></td>
+        <td><%= bid.time_from %></td>
+        <td><%= bid.time_to %></td>
+        <td><%= bid.created_at %></td>
+        <td>
+          <%= bid.match.status %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:id) %></th>
+      <th><%= model_class.human_attribute_name(:address) %></th>
+      <th><%= model_class.human_attribute_name(:time_from) %></th>
+      <th><%= model_class.human_attribute_name(:time_to) %></th>
+      <th><%= model_class.human_attribute_name(:created_at) %></th>
+      <th colspan="2"><%=t '.actions', :default => t("helpers.actions") %></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @bids_not_matched.each do |bid| %>
+      <tr>
+        <td><%= link_to bid.id, bid_path(bid) %></td>
+        <td><%= bid.address %></td>
+        <td><%= bid.time_from %></td>
+        <td><%= bid.time_to %></td>
+        <td><%= bid.created_at %></td>
+        <td>
+          <%= link_to t('.edit', :default => t("helpers.links.edit")),
+                      edit_bid_path(bid), :class => 'btn btn-default btn-xs' %>
+          <%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+                      bid_path(bid),
+                      :method => :delete,
+                      :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+                      :class => 'btn btn-xs btn-danger' %>
+        </td>
+        <td>
+          <div class="btn btn-default match" id="bid_<%= bid.id %>">MATCH</div>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= link_to t('.new', :default => t("helpers.links.new")),
+            new_bid_path,
+            :class => 'btn btn-primary' %>
+            
+<div>
+  <table class="table table-striped">
+    <thead>
+      <th><%= t('activerecord.attributes.user.name') %></th>
+      <th><%= model_class.human_attribute_name(:address) %></th>
+      <th><%= model_class.human_attribute_name(:time_from) %></th>
+      <th><%= model_class.human_attribute_name(:time_to) %></th>
+      <th></th>
+    </thead>
+    <tbody id="results">
+    </tbody>
+  </table>
+</div>
