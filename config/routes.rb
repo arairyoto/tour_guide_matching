@@ -6,6 +6,9 @@ Rails.application.routes.draw do
   end
   resources :asks
   devise_for :users
+  # devise_for :users, :controllers => {
+  # :registrations => 'users/registrations'
+  # }
   get 'home/index'
   post 'match/push'
 
