@@ -46,6 +46,8 @@ class BidsController < ApplicationController
     # 第一言語か第二言語がマッチした人のAsk
     @users = User.where('first_language = ? or second_language = ?', @bid.user.first_language, @bid.user.first_language).pluck(:id)
     @asks = Ask.where(user_id: @users)
+    # マッチしてない
+    @asks = @asks.where(match_id: nil)
     # 時間がマッチしたAsk
     @asks = @asks.where('time_from <= ? and time_to >= ?', @bid.time_from, @bid.time_to)
     # 距離が近い順にソート＋フィルタリング

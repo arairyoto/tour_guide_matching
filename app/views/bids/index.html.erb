@@ -7,6 +7,7 @@
 <script>
   $(function() {
       $('.match').click(function() {
+          var dom_id = '#'+this.id;
           var id = this.id.split("_")[1];
           
           $.ajax({
@@ -15,26 +16,40 @@
             data: {}
           }).done(function(data) {
             var data_size = data.length;
-            $('#results').empty();
-            $.each(data,function(){
+            console.log(data_size);
+            if (data_size != 0){
+              $('#results').empty();
+              $.each(data,function(){
+                $('#results').append('<tr></tr>');
+                $('#results >tr').append('<td>'+this["user"]["email"]+'</td>');
+                $('#results >tr').append('<td>'+this["address"]+'</td>');
+                $('#results >tr').append('<td>'+this["time_from"]+'</td>');
+                $('#results >tr').append('<td>'+this["time_to"]+'</td>');
+                $('#results >tr').append('<td><div class="push" id="'+id+'_'+this["id"]+'"><span class="fa fa-send"></span></div></td>');
+              });
+            } else {
+              $('#results').empty();
               $('#results').append('<tr></tr>');
-              $('#results >tr').append('<td>'+this["user"]["email"]+'</td>');
-              $('#results >tr').append('<td>'+this["address"]+'</td>');
-              $('#results >tr').append('<td>'+this["time_from"]+'</td>');
-              $('#results >tr').append('<td>'+this["time_to"]+'</td>');
-              $('#results >tr').append('<td><div class="push" id="'+id+'_'+this["id"]+'"><span class="fa fa-send"></span></div></td>');
-            });
+              $('#results >tr').append('<td colspan="5">There is no matching results...</td>');
+            }
+            
           });
       });
       $(document).on('click','.push', function(){
          var bid_id = this.id.split("_")[0];
          var ask_id = this.id.split("_")[1];
+         var dom_id = '#'+this.id;
          $.ajax({
             type: "POST",
             url: "/match/push",
-            data: {bid_id: bid_id, ask_id: ask_id}
+            data: {bid_id: bid_id, ask_id: ask_id},
+            beforeSend: function() {
+              $(dom_id).html('<img src="ajax-loader.gif" width="20" height="20" alt="Now Loading..." />');
+            }
           }).done(function(msg) {
             console.log(msg);
+            $(dom_id).html('<span class="fa fa-check" style="color:green;"></span>');
+            $(dom_id).prop("disabled", true);
             });
           });
   });
@@ -66,7 +81,7 @@
         <td><%= bid.time_to %></td>
         <td><%= bid.created_at %></td>
         <td>
-          <%= bid.match.status %>
+          <%= Match.find_by(id: bid.match_id).status %>
         </td>
       </tr>
     <% end %>

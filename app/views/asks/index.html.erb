@@ -1,4 +1,38 @@
 <%- model_class = Ask -%>
+
+<style>
+  .check {
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  $(function() {
+      $('.check').click(function() {
+          var dom_id = '#'+this.id;
+          var id = this.id.split("_")[1];
+          console.log(id)
+          
+          $.ajax({
+            type: "POST",
+            url: "/match/check",
+            data: {id: id},
+            beforeSend: function() {
+              $(dom_id).html('<img src="ajax-loader.gif" width="20" height="20" alt="Now Loading..." />');
+            }
+          }).done(function(msg) {
+            console.log(msg);
+            if (msg =="true"){
+              console.log(dom_id);
+              $(dom_id).html('<span class="fa fa-check" style="color:green;"></span>');
+            } else {
+              
+            }
+          });
+      });
+  });
+</script>
+
 <div class="page-header">
   <h1><%=t '.title', :default => model_class.model_name.human.pluralize.titleize %></h1>
 </div>
@@ -10,7 +44,7 @@
       <th><%= model_class.human_attribute_name(:time_from) %></th>
       <th><%= model_class.human_attribute_name(:time_to) %></th>
       <th><%= model_class.human_attribute_name(:created_at) %></th>
-      <th colspan="2"><%=t '.actions', :default => t("helpers.actions") %></th>
+      <th>Check</th>
     </tr>
   </thead>
   <tbody>
@@ -21,11 +55,11 @@
         <td><%= ask.time_from %></td>
         <td><%= ask.time_to %></td>
         <td><%= ask.created_at %></td>
-        <% if ask.match.status == "waiting" %>
-          <td><span class="fa fa-heart"></span></td>
-          <td><span class="fa fa-ban"></span></td>
+        <% @match = Match.find_by(id: ask.match_id) %>
+        <% if @match.status == "waiting" %>
+          <td><div class="check" id="<%= 'ck_'+@match.id.to_s %>"><span class="fa fa-square-o" style="color:red;"></span></div></td>
         <% else %>
-          <td colspan="2"><b>CONTRACTED</b></td>
+          <td><div class="check" id="<%= 'ck_'+@match.id.to_s %>"><span class="fa fa-check" style="color:green;"></span></div></td>
         <% end %>
       </tr>
     <% end %>

@@ -9,4 +9,14 @@ class MatchController < ApplicationController
         @bid.update(match_id: @match.id)
         render text: "done!!"
     end
+    
+    def check
+        id = params[:id]
+        @match = Match.find(id)
+        if @match.update(status: "checked") then
+            render text: "true"
+        else
+            render text: "false"
+        end
+    end
 end
